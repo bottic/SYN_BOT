@@ -7,7 +7,5 @@ services:
     command: python bot.py
     ports:
         - 80:80
-    env_file:
-      - .env
     volumes:
       - ./:/app

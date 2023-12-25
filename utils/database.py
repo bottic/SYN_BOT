@@ -23,6 +23,10 @@ class Database():
                             (users_tg_id, users_group))
         self.connection.commit()
 
+    def change_user(self, users_group, users_tg_id):
+        self.cursor.execute(f"UPDATE users SET users_group=? WHERE users_tg_id=?", (users_group, users_tg_id))
+        self.connection.commit()
+
     def select_user(self, user_tg_id):
         users = self.cursor.execute(f"SELECT * FROM users WHERE users_tg_id = ?", (user_tg_id,))
         return users.fetchone()

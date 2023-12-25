@@ -1,8 +1,9 @@
 import os
-import pandas
+import pandas as pd
 
+from calendar import Calendar
 import json
-from utils.gtime import get_date, get_day
+from utils.gtime import get_date, get_day, get_dates, get_week_dates
 
 groups = {"дбо-101рпо": 'dbo101.xlsx', 'дбо-102рпо': "dbo102.xlsx", "дбп-101рив": 'dbp101.xlsx',
           "дбо-161рпо": "dbo101.xlsx"}
@@ -11,7 +12,13 @@ groups = {"дбо-101рпо": 'dbo101.xlsx', 'дбо-102рпо': "dbo102.xlsx", 
 def d(group):
     group = groups[group]
     path = os.getcwd()
-    excel_data_df = pandas.read_excel(path + f"/data_xlsx/{group}")
+
+    # Вариант для работы бота
+    excel_data_df = pd.read_excel(path + f"/data_xlsx/{group}")
+
+    # Вариант для теста локально, не забудь перекинуть xlsx файл в папку data
+    # excel_data_df = pd.read_excel(path + f"/{group}")
+
     json_str = excel_data_df.to_json(orient='records', force_ascii=False)
     student_details = json.loads(json_str)
 
@@ -34,7 +41,6 @@ def d(group):
 
 
 def get_day_schedule(group) -> str:
-    from utils.gtime import h, mi
     dict_lession = d(group)
     s = ''
     date = get_date()
@@ -42,16 +48,8 @@ def get_day_schedule(group) -> str:
     _d = dict_lession.get(date)
 
     if _d is None:
-        s = "Сегодня у вас нет пар;)"
+        s = "Сегодня у вас нет пар;):)()("
         return s
-
-    mi = str(mi)
-    h = str(h)
-    if len(mi) != 2:
-        mi = '0' + mi
-    if len(h) != 2:
-        h = '0' + h
-    n_time = h + mi
 
     for _val in _d[1:]:
         time = _val["Время"]
@@ -59,19 +57,38 @@ def get_day_schedule(group) -> str:
         classroom = _val["Место проведения"]
         teacher = _val["Преподаватель"]
 
-        if len(time.split(' - ')) == 2:
-            _time = time.split(' - ')[1]
-            _h = _time.split(':')[0]
-            _m = _time.split(':')[1]
-            r_time = _h + _m
-            if int(n_time) > int(r_time):
-                continue
-        else:
-            _h = time.split(':')[0]
-            _m = time.split(':')[1]
-            r_time = _h + _m
-            if int(r_time) < int(n_time):
-                continue
+        s += ("Время: " + time + '\n' + "Предмет: " + lession + '\n'
+              + "Кабинет: " + '\n' + classroom + '\n' + 'Преподаватель: ' + teacher + '\n\n')
+    return s
+
+
+def get_next_day_schedule(group) -> str:
+    dict_lession = d(group)
+    s = ''
+
+    tdate = get_date()
+    day = tdate.split('.')[0]
+    month = tdate.split('.')[1]
+    year = '20' + tdate.split('.')[2]
+    dates = get_dates()
+    index_tday = dates.index(f'{day}.{month}.{year}')
+
+    ndate = dates[index_tday + 1]
+    day = ndate.split('.')[0]
+    month = ndate.split('.')[1]
+    year = ndate.split('.')[2]
+    year = year[2:]
+    _d = dict_lession.get(f'{day}.{month}.{year}')
+
+    if _d is None:
+        s = "Завтра у вас нет пар;):)()("
+        return s
+
+    for _val in _d[1:]:
+        time = _val["Время"]
+        lession = _val["Курс"]
+        classroom = _val["Место проведения"]
+        teacher = _val["Преподаватель"]
 
         s += ("Время: " + time + '\n' + "Предмет: " + lession + '\n'
               + "Кабинет: " + '\n' + classroom + '\n' + 'Преподаватель: ' + teacher + '\n\n')
@@ -83,31 +100,36 @@ def get_week_schedule(group) -> str:
     s = ''
 
     list_of_days_week = []
-    day = int(get_date().split('.')[0])
-    month = int(get_date().split('.')[1])
-    day_of_week = get_day()
-    r_day_of_week = day + (7 - day_of_week)
-    l_day_of_week = (day + 1) - day_of_week
 
-    for el in dict_lession.keys():
-        _day = int(el.split('.')[0])
-        _month = int(el.split('.')[1])
-        if (_day <= r_day_of_week) and (_day >= l_day_of_week) and (_month == month):
-            list_of_days_week.append(el)
+    for el in get_week_dates():
+        _day = el.split('.')[0]
+        if len(_day) == 1:
+            _day = '0' + _day
+        _month = el.split('.')[1]
+        if len(_month) == 1:
+            _month = '0' + _month
+        _year = el.split('.')[2]
+        _year = _year[2:]
+        list_of_days_week.append(f"{_day}.{_month}.{_year}")
 
     s += '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n'
 
     for el in list_of_days_week:
-        s += '                           ' + el + '\n'
-        for _val in dict_lession[el][1:]:
-            time = _val["Время"]
-            lesson = _val["Курс"]
-            classroom = _val["Место проведения"]
-            teacher = _val["Преподаватель"]
+        try:
+            __check = _val in dict_lession[el][1:]
+            s += '                           ' + el + '\n'
+            for _val in dict_lession[el][1:]:
+                time = _val["Время"]
+                lesson = _val["Курс"]
+                classroom = _val["Место проведения"]
+                teacher = _val["Преподаватель"]
 
-            s += ("Время: " + time + '\n' + "Предмет: " + lesson + '\n'
-                  + "Кабинет: " + '\n' + classroom + '\n' + 'Преподаватель: ' + teacher + '\n\n')
-        s += '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n'
+                s += ("Время: " + time + '\n' + "Предмет: " + lesson + '\n'
+                      + "Кабинет: " + '\n' + classroom + '\n' + 'Преподаватель: ' + teacher + '\n\n')
+            s += '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n'
+        except:
+            pass
     return s
+
 
 # print(get_week_schedule(""))

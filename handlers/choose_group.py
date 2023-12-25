@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram import Router, F
 from aiogram.filters import Command, StateFilter
 from config import DATABASE_NAME
+from keyboards.start import start_botton
 from utils.database import Database
 
 from state.group import GroupState
@@ -20,10 +21,22 @@ async def start_choose(message: Message, state:FSMContext):
     await state.set_state(GroupState.choosing_group)
 
 
+@router.message(Command("set_group"))
+async def set_group(message: Message, state:FSMContext):
+    await message.answer(f'Введите свою группу\nФормат: ДБО-101рпо')
+    await state.set_state(GroupState.choosing_group)
+
+
 @router.message(GroupState.choosing_group, F.text.lower().in_(GROUPS))
-async def set_group(message:Message, state:FSMContext):
+async def end_choose(message:Message, state:FSMContext):
     db = Database(DATABASE_NAME)
-    db.add_user(message.from_user.id, message.text.lower())
+    group = message.text.lower()
+    user_tg_id = message.from_user.id
+    user_data = db.select_user(user_tg_id)
+    if user_data is None:
+        db.add_user(user_tg_id, group)
+    else:
+        db.change_user(group, user_tg_id)
     await state.set_state(GroupState.chosen_group)
     await message.answer("Вы успешно ввели группу\nЧто бы вы хотели узнать?", reply_markup=schedule)
 
@@ -36,7 +49,7 @@ async def group_chosen_incorrectly(message: Message):
 
 
 @router.message(StateFilter(None))
-async def group_chosen_incorrectly(message: Message):
+async def group_not_chosen_(message: Message):
     await message.answer(
-        text="Пожалуйста, нажмите на кнопку и введите группу"
+        text="Пожалуйста, нажмите на кнопку и введите группу", reply_markup=start_botton
     )

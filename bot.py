@@ -3,7 +3,7 @@ import logging
 
 from aiogram import Bot, Dispatcher, F
 
-from handlers import start, choose_group, get_day_schedule, info, get_week_schedule
+from handlers import start, choose_group, get_day_schedule, info, get_week_schedule, get_next_day_schedule
 
 from config import BOT_TOKEN
 
@@ -39,7 +39,8 @@ async def main():
     # Диспетчер
     dp = Dispatcher(fsm_strategy=FSMStrategy.USER_IN_CHAT)
     await set_commands(bot)
-    dp.include_routers(start.router, choose_group.router, info.router, get_day_schedule.router, get_week_schedule.router)
+    dp.include_routers(start.router, choose_group.router, get_day_schedule.router,
+                       get_week_schedule.router, get_next_day_schedule.router, info.router)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
