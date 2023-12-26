@@ -10,7 +10,7 @@ router = Router()
 
 
 @router.message(Command("info"))
-async def answer_schedule(message: Message):
+async def cmd_info(message: Message):
     db = Database(DATABASE_NAME)
     user = db.select_user(message.from_user.id)
     grop = user[2]
