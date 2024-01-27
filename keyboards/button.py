@@ -5,9 +5,9 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
 kb = [
-    [types.KeyboardButton(text="📆Расписание")],
+    [types.KeyboardButton(text="📆 Расписание")],
     # [types.KeyboardButton(text="👕Мерч")],
-    [types.KeyboardButton(text="ℹ️Информация")],
+    [types.KeyboardButton(text="ℹ️ Информация")],
     ]
 
 main_kb = types.ReplyKeyboardMarkup(
@@ -17,9 +17,11 @@ main_kb = types.ReplyKeyboardMarkup(
 )
 #Клавиатура для расписания
 kb_schedule = [
-        [types.KeyboardButton(text="📆Расписание на сегодняшний день"),
-         types.KeyboardButton(text="📆Расписание на завтрашний день")],
-        [types.KeyboardButton(text="📆Расписание на неделю")]
+        [types.KeyboardButton(text="📆 Расписание на сегодняшний день"),
+         types.KeyboardButton(text="📆 Расписание на завтрашний день")],
+        [types.KeyboardButton(text="📆 Расписание на неделю"),
+         types.KeyboardButton(text="📆 Проверить статус рассылки")
+         ]
     ]
 
 schedule = types.ReplyKeyboardMarkup(

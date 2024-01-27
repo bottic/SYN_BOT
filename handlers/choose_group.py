@@ -33,8 +33,9 @@ async def hand_end_choose(message:Message, state:FSMContext):
     group = message.text.lower()
     user_tg_id = message.from_user.id
     user_data = db.select_user(user_tg_id)
+    users_chat_id = message.chat.id
     if user_data is None:
-        db.add_user(user_tg_id, group)
+        db.add_user(user_tg_id, group, users_chat_id)
     else:
         db.change_user(group, user_tg_id)
     await state.set_state(GroupState.chosen_group)
@@ -51,5 +52,5 @@ async def hand_group_chosen_incorrectly(message: Message):
 @router.message(StateFilter(None))
 async def hand_group_not_chosen_(message: Message):
     await message.answer(
-        text="Пожалуйста, нажмите на кнопку и введите группу", reply_markup=start_botton
+        text="Пожалуйста, нажмите на кнопку, а затем введите группу", reply_markup=start_botton
     )

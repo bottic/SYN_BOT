@@ -11,7 +11,9 @@ router = Router()
 async def cmd_start(message: Message):
     await message.answer(
         "Разработчики: \n{<} Студенты фокультета программирования {<}\n\nЯзыкин Артем \nИлья Конищук \nТретьяков Андрей")
-    await message.answer("Привет, я бот-помощник от факультета программирования", reply_markup=start_botton)
+    await message.answer(f'❗️ Обращаем ваше внимание, если у вас закрытый профиль бот может работать некорректно')
+    await message.answer(f"Привет, {message.from_user.first_name}, я бот-помощник от факультета программирования. "
+                         f"Пожалуйста, введите группу, чтобы я мог понимать откуда вы", reply_markup=start_botton)
 
 
 

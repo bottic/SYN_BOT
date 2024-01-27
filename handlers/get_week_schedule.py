@@ -13,7 +13,7 @@ from state.group import GroupState
 router = Router()
 
 
-@router.message(F.text.lower() == "📆расписание на неделю", GroupState.chosen_group)
+@router.message(F.text.lower() == "📆 расписание на неделю", GroupState.chosen_group)
 async def hand_set_group(message: Message):
     db = Database(DATABASE_NAME)
     user = db.select_user(message.from_user.id)

@@ -13,7 +13,7 @@ from state.group import GroupState
 router = Router()
 
 
-@router.message(F.text.lower() == "📆расписание на сегодняшний день", GroupState.chosen_group)
+@router.message(F.text.lower() == "📆 расписание на сегодняшний день", GroupState.chosen_group)
 async def hand_get_day_schedule(message: Message):
     db = Database(DATABASE_NAME)
     user = db.select_user(message.from_user.id)
